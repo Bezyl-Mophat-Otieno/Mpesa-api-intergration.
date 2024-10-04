@@ -25,7 +25,7 @@ urlpatterns = [
     path('mpesa/access-token/', get_access_token),
     path('mpesa/stk-push/', stk_push),
     path('mpesa/stkpush-status/', stkpush_status),
-    path('mpesa/stkpush-callback/', stkpush_callback),
+    path('mpesa/stkpush-callback/', stkpush_callback), 
     path('mpesa/c2b-url-registration/', c2b_url_registration),
     path('mpesa/c2b-payment-confirmation/', c2bpayment_confirmation),
     
