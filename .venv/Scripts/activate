@@ -35,7 +35,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\BezylMophatOtieno\source\repos\mpesa-api-consumumption\.venv"
+VIRTUAL_ENV="C:\Users\BezylMophatOtieno\source\repos\mpesa-api-consumption\.venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

@@ -1,19 +1,18 @@
 import requests
+import os
 import base64
 from django.http import JsonResponse, HttpResponse
 from django.core.cache import cache
 from datetime import datetime
 from django.views.decorators.http import require_POST, require_GET
-
-
 #MPESA EXPRESS API
-
 # Configuration constants
-CONSUMER_KEY = "9FKt3sI9HZI3cPsGkiJGcvLu5EdNOAej0Fm4YEzmWjnGkWvU"
-CONSUMER_SECRET = "1FnpPuUiHWpirWK4d7ZFHkLdARP7xNrNEfPOceE4KPIypnZAjoVHL1RmXtfJgrRg"
-BASE_URL = "https://sandbox.safaricom.co.ke"
-PASS_KEY = "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919"
-BUSINESS_SHORTCODE = 600999
+CONSUMER_KEY = os.getenv('CONSUMER_KEY')
+CONSUMER_SECRET = os.getenv('CONSUMER_SECRET')
+BASE_URL = os.getenv('BASE_URL')
+PASS_KEY = os.getenv('PASS_KEY')
+STKPUSH_BUSINESS_SHORTCODE = os.getenv('STKPUSH_BUSINESS_SHORTCODE')
+C2B_BUSINESS_SHORTCODE = os.getenv('C2B_BUSINESS_SHORTCODE')
 TOKEN_URL = f"{BASE_URL}/oauth/v1/generate?grant_type=client_credentials"
 STK_PUSH_URL = f"{BASE_URL}/mpesa/stkpush/v1/processrequest"
 STKPUSH_STATUS_URL = f"{BASE_URL}/mpesa/stkpushquery/v1/query"
@@ -32,7 +31,7 @@ def generate_access_token():
 def generate_password():
     """Generate the password for STK push."""
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    password = base64.b64encode(f"{BUSINESS_SHORTCODE}{PASS_KEY}{timestamp}".encode()).decode()
+    password = base64.b64encode(f"{STKPUSH_BUSINESS_SHORTCODE}{PASS_KEY}{timestamp}".encode()).decode()
     return password, timestamp
 
 @require_GET
@@ -54,7 +53,7 @@ def stk_push(request):
     }
     password, timestamp = generate_password()
     payload = {
-    "BusinessShortCode": BUSINESS_SHORTCODE,
+    "BusinessShortCode": STKPUSH_BUSINESS_SHORTCODE,
     "Password": password,
     "Timestamp": timestamp,
     "TransactionType": "CustomerPayBillOnline",
@@ -62,7 +61,7 @@ def stk_push(request):
     "PartyA": 254702715906,
     "PartyB": 174379,
     "PhoneNumber": 254702715906,
-    "CallBackURL": "https://webhook.site/ac851822-4471-4169-a0d3-c2402820f0d1",
+    "CallBackURL": "https://webhook.site/735334c9-1c5e-4d96-ba25-df5a688206f8",
     "AccountReference": "1284859458848",
     "TransactionDesc": "Payment of X" 
 }
@@ -80,7 +79,7 @@ def query_stkpush_status(access_token, checkout_request_id):
     headers = {"Authorization": f"Bearer {access_token}"}
     password, timestamp = generate_password()
     payload = {
-    "BusinessShortCode": BUSINESS_SHORTCODE,
+    "BusinessShortCode": STKPUSH_BUSINESS_SHORTCODE,
     "Password": password,
     "Timestamp": timestamp,
     "CheckoutRequestID": checkout_request_id
@@ -103,8 +102,7 @@ def stkpush_status(request):
     try:
         response = query_stkpush_status(access_token, checkout_request_id)
         return JsonResponse(response)
-    except Exception as e:
-        
+    except Exception as e:        
         return JsonResponse({'error': str(e)}, status=500)
 
 @require_POST
@@ -121,10 +119,10 @@ def c2b_url_registration(request):
     access_token = generate_access_token()  # Call the function to get the token
     headers = {"Authorization": f"Bearer {access_token}"}
     payload = {
-        "ShortCode": BUSINESS_SHORTCODE,
+        "ShortCode": C2B_BUSINESS_SHORTCODE,
         "ResponseType": "Completed",
-        "ConfirmationURL": "https://your-ngrok-url.ngrok.io/api/c2bpayment_confirmation/",
-        "ValidationURL": "https://your-ngrok-url.ngrok.io/api/c2bpayment_validation/"
+        "ConfirmationURL": "https://webhook.site/b49528e2-c9e7-403b-ad04-77f27c316498",
+        "ValidationURL": "https://webhook.site/b49528e2-c9e7-403b-ad04-77f27c316498"
     }
 
     try:
